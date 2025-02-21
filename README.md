@@ -11,14 +11,17 @@ Convert your PDF documents into high-quality audio files using OpenAI's Text-to-
 - Cost estimation before conversion
 - Progress tracking with detailed status updates
 - Multiple voice options (default: alloy)
+- Test mode for quality verification
+- Automatic retry mechanism for error recovery
 
 ## Key Benefits
 
-- Automatically removes duplicate content from PDF extraction
-- Fixes formatting issues and improves text structure
-- Optimizes text for natural-sounding speech output
-- Maintains logical flow while removing redundancy
-- Properly formats numbers and symbols for speech
+- Intelligent text preprocessing for better speech output
+- Preserves important information while fixing formatting issues
+- Handles large documents efficiently through smart chunking
+- Provides detailed cost estimates before processing
+- Test mode to verify quality before full conversion
+- Timestamps in output files for version tracking
 
 ## Prerequisites
 
@@ -54,30 +57,39 @@ python main.py
 ```
 
 3. The script will:
+   - Ask if you want to run in test mode (processes only first chunk)
    - Display text statistics and estimated cost
+   - Ask if you want to use text formatting
+   - Show final cost estimate based on your choices
    - Ask for confirmation before proceeding
    - Convert the text to speech
-   - Save the audio file in the `outputs` directory
+   - Save the audio file with timestamp in the `outputs` directory
 
 ## Project Structure
 
 ```
 doc-to-audio/
 ├── inputs/             # Directory for input PDF files
-├── outputs/            # Directory for output audio files
-├── main.py            # Main script
+├── outputs/           # Directory for output audio files
+├── main.py           # Main script and user interaction
+├── processor.py      # Core processing logic
 ├── audio_processor.py # Audio processing functions
-├── pdf_processor.py   # PDF handling functions
-├── text_processor.py  # Text processing functions
-└── .env              # Environment variables
+├── pdf_processor.py  # PDF handling functions
+├── text_processor.py # Text processing functions
+├── text_formatter.py # Text formatting with GPT
+├── helpers.py        # Utility functions and decorators
+└── .env             # Environment variables
 ```
 
-## Cost Estimation
+## Text Processing Features
 
-The script provides an estimate of the conversion cost based on OpenAI's pricing:
-- $0.015 per 1,000 characters
-- Automatic text chunking (4000 characters per chunk)
-- Cost estimate displayed before conversion
+- Removes duplicate content only when necessary
+- Fixes PDF extraction formatting issues
+- Ensures proper spacing and punctuation
+- Maintains logical flow of content
+- Formats numbers and symbols for better speech
+- Processes text in small chunks for reliability
+- Automatic retry on formatting errors
 
 ## Error Handling
 
@@ -85,7 +97,18 @@ The script includes comprehensive error handling for:
 - Missing API keys
 - PDF reading errors
 - Text processing issues
+- JSON parsing errors
+- Network connectivity issues
+- Rate limiting
 - Audio conversion problems
+
+## Output Files
+
+Output files are automatically named with:
+- Original PDF name
+- Test mode indicator (if applicable)
+- Timestamp for version tracking
+Example: `document_test_20240220_143022.mp3`
 
 ## Contributing
 
