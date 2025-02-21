@@ -10,43 +10,25 @@ def format_text_for_tts(text: str) -> str:
     print("\n🔄 Formatting text for better speech output...")
     
     try:
-        # Define the structure we want the LLM to follow
-        function_schema = {
-            "name": "format_text",
-            "description": "Format and clean text for text-to-speech conversion",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "formatted_text": {
-                        "type": "string",
-                        "description": "The cleaned and formatted text"
-                    },
-                    "statistics": {
-                        "type": "object",
-                        "properties": {
-                            "original_length": {"type": "integer"},
-                            "formatted_length": {"type": "integer"},
-                            "removed_duplicates": {"type": "integer"}
-                        }
-                    }
-                },
-                "required": ["formatted_text", "statistics"]
-            }
-        }
-
         # Create the system message with formatting instructions
         system_message = """You are a text formatting assistant that prepares text for text-to-speech conversion.
-        Your tasks:
-        1. Remove any duplicate sentences or paragraphs
-        2. Fix formatting issues from PDF extraction
-        3. Ensure proper spacing and punctuation
-        4. Remove unnecessary whitespace and special characters
-        5. Maintain the logical flow of the content
-        6. Keep important information while removing redundancy
-        7. Format numbers and symbols for better speech output
-        8. Structure the text in a way that sounds natural when spoken
+        Your task is to format the input text and return a JSON object with the following:
+        1. A 'formatted_text' field containing the processed text with:
+           - Removed duplicate sentences or paragraphs
+           - Fixed formatting issues from PDF extraction
+           - Proper spacing and punctuation
+           - No unnecessary whitespace or special characters
+           - Maintained logical flow
+           - Important information preserved while removing redundancy
+           - Numbers and symbols formatted for better speech output
+           - Natural speech-friendly structure
         
-        Return the formatted text and statistics about the changes made."""
+        2. A 'statistics' object containing:
+           - original_length: number of characters in input
+           - formatted_length: number of characters in output
+           - removed_duplicates: number of duplicates removed
+        
+        Ensure your response is a valid JSON object with these fields."""
 
         # Create the completion request
         response = openai.chat.completions.create(
@@ -54,14 +36,12 @@ def format_text_for_tts(text: str) -> str:
             response_format={"type": "json_object"},
             messages=[
                 {"role": "system", "content": system_message},
-                {"role": "user", "content": f"Format this text for text-to-speech: {text}"}
-            ],
-            functions=[function_schema],
-            function_call={"name": "format_text"}
+                {"role": "user", "content": "Please format the following text and return a JSON response with the formatting results: " + text}
+            ]
         )
 
         # Parse the response
-        result = json.loads(response.choices[0].message.function_call.arguments)
+        result = json.loads(response.choices[0].message.content)
         
         # Display statistics
         stats = result['statistics']
