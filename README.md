@@ -5,11 +5,20 @@ Convert your PDF documents into high-quality audio files using OpenAI's Text-to-
 ## Features
 
 - PDF text extraction with PyPDF2
+- Smart text formatting using OpenAI's GPT model
 - High-quality text-to-speech conversion using OpenAI's TTS API
 - Efficient processing of large documents through chunking
 - Cost estimation before conversion
 - Progress tracking with detailed status updates
 - Multiple voice options (default: alloy)
+
+## Key Benefits
+
+- Automatically removes duplicate content from PDF extraction
+- Fixes formatting issues and improves text structure
+- Optimizes text for natural-sounding speech output
+- Maintains logical flow while removing redundancy
+- Properly formats numbers and symbols for speech
 
 ## Prerequisites
 

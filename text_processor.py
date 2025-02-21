@@ -22,14 +22,25 @@ def split_text(text, max_length=4000):
     
     return chunks
 
-def calculate_tts_cost(text):
-    """Calculate character count and estimated cost for TTS."""
+def calculate_costs(text):
+    """Calculate costs for both text formatting and TTS."""
     char_count = len(text)
+    
+    # GPT-3.5 Turbo costs (as of 2024)
+    # $0.0010 per 1K tokens (input)
+    # Approximate tokens as characters/4 for English text
+    estimated_tokens = math.ceil(char_count / 4)
+    gpt_cost = (estimated_tokens / 1000) * 0.0010
+    
+    # TTS costs
     # OpenAI charges $0.015 per 1,000 characters
-    estimated_cost = (char_count / 1000) * 0.015
+    tts_cost = (char_count / 1000) * 0.015
     
     return {
         'characters': char_count,
         'chunks': math.ceil(char_count / 4000),
-        'estimated_cost': round(estimated_cost, 2)
+        'tokens': estimated_tokens,
+        'gpt_cost': round(gpt_cost, 3),
+        'tts_cost': round(tts_cost, 2),
+        'total_cost': round(gpt_cost + tts_cost, 2)
     } 
