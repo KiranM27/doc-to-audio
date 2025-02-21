@@ -13,6 +13,8 @@ def format_text_for_tts(text: str) -> str:
     system_message = """You are a text formatting assistant that prepares text for text-to-speech conversion.
     Your task is to format the input text and return a JSON object with the following:
     1. A 'formatted_text' field containing the processed text with:
+       - Only make changes to the text if it is necessary to improve the text-to-speech output. Else keep the text as it. 
+       - Do not remove text unless it is necessary to improve the text-to-speech output.
        - Removed duplicate sentences or paragraphs
        - Fixed formatting issues from PDF extraction
        - Proper spacing and punctuation
@@ -27,25 +29,39 @@ def format_text_for_tts(text: str) -> str:
        - formatted_length: number of characters in output
        - removed_duplicates: number of duplicates removed
     
-    Ensure your response is a valid JSON object with these fields."""
+    Important: Your response must be a valid JSON object with these exact fields."""
 
-    # Create the completion request
-    response = openai.chat.completions.create(
-        model="gpt-3.5-turbo-1106",
-        response_format={"type": "json_object"},
-        messages=[
-            {"role": "system", "content": system_message},
-            {"role": "user", "content": "Please format the following text and return a JSON response with the formatting results: " + text}
-        ]
-    )
+    try:
+        # Create the completion request
+        response = openai.chat.completions.create(
+            model="gpt-3.5-turbo-1106",
+            response_format={"type": "json_object"},
+            messages=[
+                {"role": "system", "content": system_message},
+                {"role": "user", "content": "Format the following text and return a JSON response: " + text}
+            ]
+        )
 
-    # Parse the response
-    result = json.loads(response.choices[0].message.content)
-    
-    # Display brief statistics
-    stats = result['statistics']
-    chars_reduced = stats['original_length'] - stats['formatted_length']
-    if chars_reduced > 0:
-        print(f"📊 Reduced by {chars_reduced:,} characters ({stats['removed_duplicates']} duplicates removed)")
-    
-    return result['formatted_text'] 
+        # Parse and validate the response
+        content = response.choices[0].message.content
+        if not content:
+            raise ValueError("Empty response from OpenAI")
+
+        result = json.loads(content)
+        
+        # Validate required fields
+        if 'formatted_text' not in result:
+            raise ValueError("Missing 'formatted_text' in response")
+        if 'statistics' not in result:
+            raise ValueError("Missing 'statistics' in response")
+            
+        return result['formatted_text']
+
+    except json.JSONDecodeError as e:
+        print(f"❌ JSON parsing error: {str(e)}")
+        print("Response content:", content)
+        raise ValueError(f"Invalid JSON response from OpenAI: {str(e)}")
+    except Exception as e:
+        print(f"❌ Formatting error: {str(e)}")
+        raise
+

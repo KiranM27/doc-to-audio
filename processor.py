@@ -49,13 +49,11 @@ class DocumentProcessor:
     def format_text_chunks(self, text: str) -> str:
         """Format text in chunks using GPT."""
         print("\n🔄 Formatting text chunks for better speech output...")
-        # Split into smaller chunks for GPT (max ~16K tokens ≈ 64K chars)
-        # Using 12K tokens (48K chars) to be safe
-        format_chunks = split_text(text, max_length=48000)
+        # Using much smaller chunks (about 2K tokens ≈ 8K chars) to ensure we're well within limits
+        format_chunks = split_text(text, max_length=8000)
         formatted_chunks = []
         
-        for i, chunk in enumerate(tqdm(format_chunks, desc="Formatting chunks", unit="chunk")):
-            print(f"\n📝 Processing chunk {i+1} of {len(format_chunks)}")
+        for _, chunk in enumerate(tqdm(format_chunks, desc="Formatting chunks", unit="chunk")):
             formatted_chunk = format_text_for_tts(chunk)
             formatted_chunks.append(formatted_chunk)
         
