@@ -26,7 +26,7 @@ def calculate_tts_cost(text):
     """Calculate character count and estimated cost for TTS."""
     char_count = len(text)
     # OpenAI charges $0.015 per 1,000 characters
-    estimated_cost = (char_count / 1000) * 0.06
+    estimated_cost = (char_count / 1000) * 0.015
     
     return {
         'characters': char_count,
