@@ -7,8 +7,6 @@ def format_text_for_tts(text: str) -> str:
     Format text for text-to-speech using OpenAI's Chat Completion API.
     Removes duplicates, fixes formatting issues, and structures the text for better TTS output.
     """
-    print("\n🔄 Formatting text for better speech output...")
-    
     try:
         # Create the system message with formatting instructions
         system_message = """You are a text formatting assistant that prepares text for text-to-speech conversion.
@@ -43,15 +41,14 @@ def format_text_for_tts(text: str) -> str:
         # Parse the response
         result = json.loads(response.choices[0].message.content)
         
-        # Display statistics
+        # Display brief statistics
         stats = result['statistics']
-        print("\n📊 Formatting Statistics:")
-        print(f"📝 Original length: {stats['original_length']} characters")
-        print(f"✨ Formatted length: {stats['formatted_length']} characters")
-        print(f"🔄 Removed duplicates: {stats['removed_duplicates']}")
+        chars_reduced = stats['original_length'] - stats['formatted_length']
+        if chars_reduced > 0:
+            print(f"📊 Reduced by {chars_reduced:,} characters ({stats['removed_duplicates']} duplicates removed)")
         
         return result['formatted_text']
 
     except Exception as e:
-        print(f"❌ Error formatting text: {str(e)}")
+        print(f"❌ Error formatting chunk: {str(e)}")
         return text  # Return original text if formatting fails 
